@@ -24,6 +24,8 @@ def run(args):
         from one_plus_one_es import one_plus_one_es as alg
     elif args.algo == 'combo':
         from one_plus_one_combo import one_plus_one_combo as alg
+    elif args.algo == 'de':
+        from differential_evolution import differential_evolution as alg
     else:
         raise ValueError('Unknown algorithm: ' + args.algo)
 
@@ -52,7 +54,7 @@ def run(args):
                 sigma=args.sigma0,
                 adapt=args.adapt if hasattr(args, 'adapt') else True,
             )
-        else:  # combo
+        elif args.algo == 'combo':  # combo
             res = alg(
                 problem,
                 budget=args.budget,
@@ -62,6 +64,16 @@ def run(args):
                 mirrored=True,
                 reevaluate_k=args.reeval if hasattr(args, 'reeval') else 3,
                 restart_no_improve=args.restart_no_improve if hasattr(args, 'restart_no_improve') else 200,
+            )
+        else:  # de
+            res = alg(
+                problem,
+                budget=args.budget,
+                pop_size=args.pop_size if hasattr(args, 'pop_size') else 30,
+                F=args.F if hasattr(args, 'F') else 0.8,
+                CR=args.CR if hasattr(args, 'CR') else 0.9,
+                seed=seed,
+                print_every=args.print_every,
             )
 
         # normalize returned tuple formats between algorithms
@@ -142,7 +154,7 @@ def run(args):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('--algo', choices=['self', 'plain', 'combo'], default='self', help='which ES to run')
+    p.add_argument('--algo', choices=['self', 'plain', 'combo', 'de'], default='self', help='which ES to run')
     p.add_argument('--reps', type=int, default=5)
     p.add_argument('--budget', type=int, default=200)
     p.add_argument('--sigma0', type=float, default=0.1)
@@ -150,6 +162,9 @@ if __name__ == '__main__':
     p.add_argument('--print-every', type=int, default=0)
     p.add_argument('--reeval', type=int, default=3)
     p.add_argument('--restart-no-improve', type=int, default=200)
+    p.add_argument('--pop-size', type=int, default=30)
+    p.add_argument('--F', type=float, default=0.8)
+    p.add_argument('--CR', type=float, default=0.9)
     p.add_argument('--out', type=str, default='replicates_results.csv')
     p.add_argument('--adapt', type=bool, default=True)
     args = p.parse_args()
