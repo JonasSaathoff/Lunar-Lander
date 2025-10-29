@@ -18,16 +18,31 @@ import time
 
 
 def run(args):
-    if args.algo == 'self':
-        from one_plus_one_self_adaptive import one_plus_one_self_adaptive as alg
-    elif args.algo == 'plain':
-        from one_plus_one_es import one_plus_one_es as alg
-    elif args.algo == 'combo':
-        from one_plus_one_combo import one_plus_one_combo as alg
-    elif args.algo == 'de':
-        from differential_evolution import differential_evolution as alg
-    else:
-        raise ValueError('Unknown algorithm: ' + args.algo)
+    # Prefer adapters if available (non-invasive wrappers that standardize call signature)
+    alg = None
+    try:
+        import adapters
+        if hasattr(adapters, args.algo):
+            alg = getattr(adapters, args.algo)
+    except Exception:
+        alg = None
+
+    # fallback to importing implementations directly if adapter is not present
+    if alg is None:
+        if args.algo == 'self':
+            from one_plus_one_self_adaptive import one_plus_one_self_adaptive as alg
+        elif args.algo == 'plain':
+            from one_plus_one_es import one_plus_one_es as alg
+        elif args.algo == 'combo':
+            from one_plus_one_combo import one_plus_one_combo as alg
+        elif args.algo == 'de':
+            from differential_evolution import differential_evolution as alg
+        elif args.algo == 'adaptive_de':
+            from adaptive_differential_evolution import adaptive_differential_evolution as alg
+        elif args.algo == 'random':
+            from random_search import random_search as alg
+        else:
+            raise ValueError('Unknown algorithm: ' + args.algo)
 
     results = []
 
@@ -65,7 +80,7 @@ def run(args):
                 reevaluate_k=args.reeval if hasattr(args, 'reeval') else 3,
                 restart_no_improve=args.restart_no_improve if hasattr(args, 'restart_no_improve') else 200,
             )
-        else:  # de
+        elif args.algo == 'de':
             res = alg(
                 problem,
                 budget=args.budget,
@@ -75,6 +90,20 @@ def run(args):
                 seed=seed,
                 print_every=args.print_every,
             )
+        elif args.algo == 'adaptive_de':   
+            res = alg(
+                problem=problem,
+                budget=args.budget,
+                pop_size=args.pop_size if hasattr(args, 'pop_size') else 30,
+                # Note: ADE typically ignores the fixed F and CR, but you can pass them as initial M_F/M_CR
+                seed=seed,
+                print_every=args.print_every,
+            )
+        elif args.algo == 'random':
+            # random_search returns (best_x, best_f, f_hist, best_rewards)
+            res = alg(problem, budget=args.budget, seed=seed, print_every=args.print_every)
+        else:
+            raise RuntimeError('Unknown algorithm selection at run-time')
 
         # normalize returned tuple formats between algorithms
         sigma_end = None
@@ -154,7 +183,7 @@ def run(args):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('--algo', choices=['self', 'plain', 'combo', 'de'], default='self', help='which ES to run')
+    p.add_argument('--algo', choices=['self', 'plain', 'combo', 'de', 'random'], default='self', help='which ES to run')
     p.add_argument('--reps', type=int, default=5)
     p.add_argument('--budget', type=int, default=200)
     p.add_argument('--sigma0', type=float, default=0.1)
