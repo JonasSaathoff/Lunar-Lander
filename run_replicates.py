@@ -183,7 +183,7 @@ def run(args):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('--algo', choices=['self', 'plain', 'combo', 'de', 'random'], default='self', help='which ES to run')
+    p.add_argument('--algo', choices=['self', 'plain', 'combo', 'de', 'adaptive_de', 'random'], default='self', help='which ES to run')
     p.add_argument('--reps', type=int, default=5)
     p.add_argument('--budget', type=int, default=200)
     p.add_argument('--sigma0', type=float, default=0.1)
