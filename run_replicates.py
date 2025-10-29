@@ -39,6 +39,8 @@ def run(args):
             from differential_evolution import differential_evolution as alg
         elif args.algo == 'adaptive_de':
             from adaptive_differential_evolution import adaptive_differential_evolution as alg
+        elif args.algo == 'de2':
+            from differential_evolution_rand2 import differential_evolution_rand2 as alg
         elif args.algo == 'random':
             from random_search import random_search as alg
         else:
@@ -96,6 +98,16 @@ def run(args):
                 budget=args.budget,
                 pop_size=args.pop_size if hasattr(args, 'pop_size') else 30,
                 # Note: ADE typically ignores the fixed F and CR, but you can pass them as initial M_F/M_CR
+                seed=seed,
+                print_every=args.print_every,
+            )
+        elif args.algo == 'de2':
+            res = alg(
+                problem,
+                budget=args.budget,
+                pop_size=args.pop_size if hasattr(args, 'pop_size') else 30,
+                F=args.F if hasattr(args, 'F') else 0.8,
+                CR=args.CR if hasattr(args, 'CR') else 0.9,
                 seed=seed,
                 print_every=args.print_every,
             )
@@ -183,7 +195,7 @@ def run(args):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('--algo', choices=['self', 'plain', 'combo', 'de', 'adaptive_de', 'random'], default='self', help='which ES to run')
+    p.add_argument('--algo', choices=['self', 'plain', 'combo', 'de', 'adaptive_de', 'de2', 'random'], default='self', help='which ES to run')
     p.add_argument('--reps', type=int, default=5)
     p.add_argument('--budget', type=int, default=200)
     p.add_argument('--sigma0', type=float, default=0.1)
