@@ -24,7 +24,7 @@ def differential_evolution_rand2(problem: GymProblem, budget: int = 1000, pop_si
     if seed is not None:
         np.random.seed(seed)
 
-    # initialize population uniformly in [-1,1]
+    # initialize population uniformly in [-1,1[]
     pop = np.stack([problem.sample() for _ in range(pop_size)])
     fitness = np.zeros(pop_size, dtype=float)
     rewards_list = [None] * pop_size
