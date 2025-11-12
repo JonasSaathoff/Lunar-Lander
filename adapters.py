@@ -36,3 +36,9 @@ def random(problem, budget=1000, seed=None, print_every=0, **kwargs) -> Any:
     """Adapter for random_search demo (non-invasive)."""
     from random_search import random_search
     return random_search(problem, budget=budget, seed=seed, print_every=print_every)
+
+
+def rand2(problem, budget=1000, pop_size=30, F=0.8, CR=0.9, seed=None, print_every=0, **kwargs) -> Any:
+    """Adapter for differential_evolution_rand2 (DE/rand/2/bin)."""
+    from differential_evolution_rand2 import differential_evolution_rand2
+    return differential_evolution_rand2(problem, budget=budget, pop_size=pop_size, F=F, CR=CR, seed=seed, print_every=print_every)

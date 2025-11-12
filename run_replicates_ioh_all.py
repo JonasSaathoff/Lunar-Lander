@@ -20,7 +20,7 @@ import ioh
 from problem import GymProblem
 import adapters
 
-ALGOS = ["adaptive_de", "combo", "plain", "random", "self"]
+ALGOS = ["adaptive_de", "combo", "plain", "random", "self", "rand2"]
 REPS = 30
 BUDGET = 1000
 SEED_START = 1000
