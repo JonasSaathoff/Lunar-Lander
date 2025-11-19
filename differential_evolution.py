@@ -105,6 +105,7 @@ def main():
     p.add_argument('--seed', type=int, default=None)
     p.add_argument('--print-every', type=int, default=0)
     p.add_argument('--out-plot', type=str, default=None)
+    p.add_argument('--render', action='store_true', help='Resimulate and render the best policy in a window')
     args = p.parse_args()
 
     problem = GymProblem()
@@ -119,6 +120,45 @@ def main():
     )
 
     print(f"Best fitness: {best_f}")
+    # resimulate to check landing (same heuristic used elsewhere)
+    try:
+        tmp = GymProblem()
+        env = tmp.env_spec.make(**tmp.simulation_params)
+        M = best_x.reshape(tmp.state_size, tmp.n_outputs)
+        observation, *_ = env.reset()
+        obs_history = [observation]
+        for _ in range(tmp.env_spec.max_episode_steps):
+            action = tmp.activation(M.T @ observation)
+            observation, reward, terminated, truncated, info = env.step(action)
+            obs_history.append(observation)
+            if terminated or truncated:
+                break
+        env.close()
+        final = obs_history[-1]
+        left = bool(final[6])
+        right = bool(final[7])
+        vel_x = final[2]
+        vel_y = final[3]
+        angle = final[4]
+        landed = left and right and abs(vel_y) < 0.5 and abs(vel_x) < 0.3 and abs(angle) < 0.2
+        print(f"Landed (resimulated): {landed}")
+    except Exception:
+        print("Landed (resimulated): unknown (resimulation failed)")
+    
+    # render the best policy interactively if requested
+    if args.render:
+        try:
+            print('Rendering best policy (close the window to continue)...')
+            problem.show(best_x)
+        except Exception:
+            print('Rendering failed: ensure you have a graphical environment available')
+    
+    # use shared visualizer for consistent plots
+    try:
+        from viz import plot_and_show
+        plot_and_show(problem, best_x, f_hist, best_rewards, title='DE result', out_plot=args.out_plot, render=args.render)
+    except Exception:
+        pass
 
     # quick plot of best fitness history
     plt.plot(f_hist)

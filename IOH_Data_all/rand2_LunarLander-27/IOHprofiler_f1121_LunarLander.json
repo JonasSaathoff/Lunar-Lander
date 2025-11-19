@@ -1,0 +1,16 @@
+{
+	"version": "0.3.22", 
+	"suite": "unknown_suite", 
+	"function_id": 1121, 
+	"function_name": "LunarLander", 
+	"maximization": true, 
+	"algorithm": {"name": "rand2", "info": "algorithm_info"},
+	"attributes": ["evaluations", "raw_y"],
+	"scenarios": [
+		{"dimension": 32,
+		"path": "data_f1121_LunarLander/IOHprofiler_f1121_DIM32.dat",
+		"runs": [
+			{"instance": 1, "evals": 20000, "best": {"evals": 15867, "y": 315.6897517327214, "x": [-1, 1, -1, -1, -0.8249764859243137, 1, -0.533763528317566, 1, -0.24066318996619973, 1, -0.13791826684750702, -1, 1, 1, -1, 1, -0.28000000000000025, -1, -0.1613883572778001, 1, -0.2866380002575796, 1, -1, 1, 1, 1, 1, -0.07707752986286781, 0.8186773226289302, -0.28000000000000025, -0.2748732780742156, 1]}}
+		]}
+	]
+}

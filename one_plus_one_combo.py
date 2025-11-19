@@ -176,32 +176,37 @@ def main():
     print(f"Final sigma: {sigma_end}, accept_rate: {accept_rate:.3f}")
     landed = compute_landed(problem, best_x)
     print(f"Landed (resimulated): {landed}")
+    # use shared visualizer for consistent output (it will also render if desired)
+    try:
+        from viz import plot_and_show
+        # show both fitness and sigma as two figures: combine sigma into the rewards plot by plotting sigma_hist on top
+        plot_and_show(problem, best_x, f_hist, best_rewards, title='Combo ES', out_plot=args.out_plot, render=True)
+    except Exception:
+        # fallback to previous behavior
+        plt.subplot(3, 1, 1)
+        plt.plot(f_hist)
+        plt.title('Fitness History')
+        plt.xlabel('Iteration')
+        plt.ylabel('Fitness')
 
-    # plot
-    plt.subplot(3, 1, 1)
-    plt.plot(f_hist)
-    plt.title('Fitness History')
-    plt.xlabel('Iteration')
-    plt.ylabel('Fitness')
+        plt.subplot(3, 1, 2)
+        plt.plot(sigma_hist)
+        plt.title('Sigma History')
+        plt.xlabel('Iteration')
+        plt.ylabel('Sigma')
 
-    plt.subplot(3, 1, 2)
-    plt.plot(sigma_hist)
-    plt.title('Sigma History')
-    plt.xlabel('Iteration')
-    plt.ylabel('Sigma')
+        plt.subplot(3, 1, 3)
+        plt.plot(best_rewards)
+        plt.title('Best solution rewards')
+        plt.xlabel('Simulation step')
+        plt.ylabel('Reward')
 
-    plt.subplot(3, 1, 3)
-    plt.plot(best_rewards)
-    plt.title('Best solution rewards')
-    plt.xlabel('Simulation step')
-    plt.ylabel('Reward')
-
-    plt.tight_layout()
-    if args.out_plot:
-        plt.savefig(args.out_plot)
-        print(f"Saved plot to {args.out_plot}")
-    else:
-        plt.show()
+        plt.tight_layout()
+        if args.out_plot:
+            plt.savefig(args.out_plot)
+            print(f"Saved plot to {args.out_plot}")
+        else:
+            plt.show()
 
 
 if __name__ == '__main__':

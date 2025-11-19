@@ -46,6 +46,15 @@ def run(args):
 
     results = []
 
+    # prepare IOH long-format writer if requested
+    ioh_long_writer = None
+    ioh_long_file = None
+    if getattr(args, 'ioh_long', None):
+        ioh_long_file = open(args.ioh_long, 'w', newline='')
+        ioh_fieldnames = ['Run ID', 'Evaluation counter', 'Function values', 'Function ID', 'Algorithm ID', 'Problem dimension']
+        ioh_long_writer = csv.DictWriter(ioh_long_file, fieldnames=ioh_fieldnames)
+        ioh_long_writer.writeheader()
+
     for i in range(args.reps):
         seed = args.seed_start + i
         print(f"=== Run {i+1}/{args.reps}, seed={seed} ===")
@@ -53,6 +62,13 @@ def run(args):
         # call the selected algorithm and normalize its return signature
         Problem = __import__('problem').GymProblem
         problem = Problem()
+        # if ioh_out is requested, wrap the problem to instrument evaluations
+        if getattr(args, 'ioh_out', None):
+            try:
+                from instrumented_problem import InstrumentedProblem
+                problem = InstrumentedProblem(problem, ioh_out=args.ioh_out, algorithm=args.algo, seed=seed)
+            except Exception as e:
+                print(f"Warning: failed to enable InstrumentedProblem: {e}")
 
         if args.algo == 'self':
             res = alg(
@@ -161,6 +177,24 @@ def run(args):
 
         results.append({'seed': seed, 'best_f': float(best_f), 'sigma_end': sigma_end, 'accept_rate': accept_rate, 'landed': landed})
 
+        # stream f_hist into IOHanalyzer long-format CSV (if requested)
+        if ioh_long_writer is not None and f_hist is not None:
+            try:
+                func_id = getattr(problem.env_spec, 'id', None) or getattr(problem, 'env_name', 'LunarLander-v3')
+            except Exception:
+                func_id = 'LunarLander-v3'
+            algo_id = args.algo
+            dimension = getattr(problem, 'n_variables', None) or getattr(problem, 'state_size', 0) * getattr(problem, 'n_outputs', 1)
+            for j, fval in enumerate(f_hist):
+                ioh_long_writer.writerow({
+                    'Run ID': seed,
+                    'Evaluation counter': j + 1,
+                    'Function values': fval,
+                    'Function ID': func_id,
+                    'Algorithm ID': algo_id,
+                    'Problem dimension': dimension,
+                })
+
     # write CSV
     csv_path = args.out or 'replicates_results.csv'
     # include metadata fields if available
@@ -180,6 +214,10 @@ def run(args):
     print(f'  min = {bests.min():.6f}, max = {bests.max():.6f}')
     print(f'  results saved to {csv_path}')
 
+    if ioh_long_writer is not None:
+        ioh_long_file.close()
+        print(f'IOHanalyzer long-format CSV written to {args.ioh_long}')
+
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
@@ -196,5 +234,7 @@ if __name__ == '__main__':
     p.add_argument('--CR', type=float, default=0.9)
     p.add_argument('--out', type=str, default='replicates_results.csv')
     p.add_argument('--adapt', type=bool, default=True)
+    p.add_argument('--ioh-out', dest='ioh_out', type=str, default=None, help='directory to write IOH-style per-evaluation CSVs (optional)')
+    p.add_argument('--ioh-long', dest='ioh_long', type=str, default=None, help='path to write IOHanalyzer long-format CSV (optional)')
     args = p.parse_args()
     run(args)

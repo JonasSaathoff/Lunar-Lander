@@ -22,7 +22,7 @@ import adapters
 
 ALGOS = ["adaptive_de", "combo", "plain", "random", "self", "rand2"]
 REPS = 30
-BUDGET = 1000
+BUDGET = 20000
 SEED_START = 1000
 OUT_ROOT = "IOH_Data_all"
 
@@ -111,7 +111,7 @@ def main():
         run_one_algo(algo, reps=REPS, budget=BUDGET, seed_start=SEED_START)
 
     # zip the result folder
-    zip_name = "IOH_Data_all.zip"
+    zip_name = "IOH_BUDGET_20000_REPS_30.zip"
     with zipfile.ZipFile(zip_name, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for root, _, files in os.walk(OUT_ROOT):
             for f in files:

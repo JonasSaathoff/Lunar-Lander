@@ -1,5 +1,6 @@
 import numpy as np
 from problem import GymProblem
+import os, csv
 
 # Define the adaptation rate constants (tau values)
 # These control the probability of re-sampling F and CR
@@ -8,7 +9,7 @@ TAU2 = 0.1
 
 def adaptive_differential_evolution(problem: GymProblem, budget: int = 1000, pop_size: int = 30,
                            F: float = 0.8, CR: float = 0.9, seed: int | None = None,
-                           print_every: int = 0):
+                           print_every: int = 0, ioh_out: str | None = None, algo_name: str = "adaptive_de"):
     """Run Adaptive DE/rand/1/bin (jDE-inspired) and return best solution and history."""
     n = problem.n_variables
     if seed is not None:
@@ -101,4 +102,18 @@ def adaptive_differential_evolution(problem: GymProblem, budget: int = 1000, pop
 
     # return 5-tuple compatible with run_replicates mapping
     sigma_hist_placeholder = None
+    # optional: export IOH-style per-evaluation CSV (one file per run)
+    if ioh_out is not None:
+        os.makedirs(ioh_out, exist_ok=True)
+        algo_dir = os.path.join(ioh_out, algo_name)
+        os.makedirs(algo_dir, exist_ok=True)
+        seed_label = str(seed) if seed is not None else "na"
+        fn = os.path.join(algo_dir, f'seed_{seed_label}.csv')
+        with open(fn, 'w', newline='') as of:
+            w = csv.writer(of)
+            w.writerow(['evaluation', 'best_f'])
+            for i, val in enumerate(f_hist, start=1):
+                w.writerow([i, float(val)])
+        if print_every:
+            print(f"Wrote IOH CSV to {fn}")
     return best_x, best_f, f_hist, sigma_hist_placeholder, best_rewards
