@@ -60,3 +60,9 @@ def best2(problem, budget=1000, pop_size=30, F=0.8, CR=0.9, seed=None, print_eve
     """Adapter for differential_evolution_best2 (DE/best/2/bin)."""
     from differential_evolution_best2 import differential_evolution_best2
     return differential_evolution_best2(problem, budget=budget, pop_size=pop_size, F=F, CR=CR, seed=seed, print_every=print_every)
+
+
+def current_to_best1(problem, budget=1000, pop_size=30, F=0.8, CR=0.9, seed=None, print_every=0, **kwargs) -> Any:
+    """Adapter for differential_evolution_current_to_best1 (DE/current-to-best/1/bin)."""
+    from differential_evolution_current_to_best1 import differential_evolution_current_to_best1
+    return differential_evolution_current_to_best1(problem, budget=budget, pop_size=pop_size, F=F, CR=CR, seed=seed, print_every=print_every)
