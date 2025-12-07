@@ -66,3 +66,15 @@ def current_to_best1(problem, budget=1000, pop_size=30, F=0.8, CR=0.9, seed=None
     """Adapter for differential_evolution_current_to_best1 (DE/current-to-best/1/bin)."""
     from differential_evolution_current_to_best1 import differential_evolution_current_to_best1
     return differential_evolution_current_to_best1(problem, budget=budget, pop_size=pop_size, F=F, CR=CR, seed=seed, print_every=print_every)
+
+
+def adaptive_de(problem, budget=1000, pop_size=30, F=0.8, CR=0.9, seed=None, print_every=0, **kwargs) -> Any:
+    """Adapter for adaptive_differential_evolution (self-adaptive DE)."""
+    from adaptive_differential_evolution import adaptive_differential_evolution
+    return adaptive_differential_evolution(problem, budget=budget, pop_size=pop_size, F=F, CR=CR, seed=seed, print_every=print_every)
+
+
+def adaptive_mixed_de(problem, budget=1000, pop_size=30, F=0.8, CR=0.9, seed=None, print_every=0, **kwargs) -> Any:
+    """Adapter for adaptive_mixed_de (mixed-strategy adaptive DE)."""
+    from adaptive_mixed_de import adaptive_mixed_de as _amd
+    return _amd(problem, budget=budget, pop_size=pop_size, F=F, CR=CR, seed=seed, print_every=print_every, **kwargs)

@@ -1,9 +1,0 @@
-seed,best_f
-200,-203.73841849980695
-201,189.61904824475442
-202,33.377029630858345
-
-Ergebnisse sind stark seed‑abhängig (hohe Varianz). Einige Seeds findens gute Lösungen (positive Fitness), andere schlechte.
-Sigma=0.1 und 0.2 liefern bei diesen kurzen Runs die besten Mittelwerte; sigma=0.2 ist in diesen Tests stabiler (kleinere Std).
-Schlussfolgerung: Start-Sigma von 0.1–0.2 ist ein sinnvolles Bereich für weitere Experimente.
-Empfehlung: Führen Sie eine größere Studie (z.B. 20–30 Replikate pro Sigma, Budget 1000) auf dem Bereich 0.05–0.2, um belastbare Ergebnisse zu bekommen.
