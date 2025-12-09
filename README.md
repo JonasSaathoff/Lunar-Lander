@@ -28,7 +28,6 @@ and Differential Evolution variants, instrumented for IOH logging.
 │   └── random_search.py
 ├── run_replicates_ioh_all.py        # IOH driver for batch runs
 ├── run_sample.sh                    # One-line smoke test
-├── CLEAN_SUBMISSION.md              # Minimal bundle notes
 ├── make_clean_submission.py         # Build clean submission zip
 └── requirements.txt
 ```
