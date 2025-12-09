@@ -41,6 +41,7 @@ pip install -r requirements.txt
 ```
 
 ## Quick Usage
+
 ### Smoke test (small IOH run)
 ```bash
 ./run_sample.sh
@@ -57,6 +58,7 @@ python run_replicates_ioh_all.py \
   --out-root IOH_runs \
   --clean
 ```
+
 Key flags:
 - `--presets`: env presets (`nominal`, `nominal_continuous`, `wind_med`, `wind_high`, `gravity_low`, `gravity_high`, `turbulence_high`, `wind_and_gravity`).
 - `--algos`: comma-separated names from `adapters.py`.
@@ -66,6 +68,7 @@ Key flags:
 - `--clean`: remove existing `out-root` before running.
 
 ## GymProblem API (quick reference)
+
 ```python
 GymProblem(
     continuous: bool = False,
@@ -75,7 +78,8 @@ GymProblem(
     turbulence_power: float = 0.0,
 )
 ```
-- `.sample()`: draw from $[-1, 1]^n$ where $n = \text{state\_size} \times \text{n\_outputs}$.
+
+- `.sample()`: draw from [-1, 1]^n where n = state_size × n_outputs.
 - `.play_episode(x, **env_kwargs)`: run a rollout; returns `(fitness, rewards)`.
 - `__call__(x)`: shorthand for `play_episode(x, **simulation_params)`.
 - `.show(x)`: render an episode (`render_mode="human"`).
@@ -92,6 +96,7 @@ print("Fitness:", f)
 ```
 
 ## Build a clean submission zip
+
 If you only need the essential files for grading/sharing:
 ```bash
 python make_clean_submission.py --out submission_clean.zip
