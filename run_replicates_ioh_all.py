@@ -42,7 +42,7 @@ SEED_START = 1000
 OUT_ROOT = "IOH_baseline_6x1k"
 
 
-def run_one_algo(algo_name: str, reps=30, budget=1000, seed_start=1000):
+def run_one_algo(algo_name: str, reps=30, budget=1000, seed_start=1000, crossover="binomial"):
     print(f"=== Running algorithm {algo_name} (reps={reps}, budget={budget}) ===")
     for i in range(reps):
         seed = seed_start + i
@@ -110,12 +110,14 @@ def run_one_algo(algo_name: str, reps=30, budget=1000, seed_start=1000):
             if algo_name == 'adaptive_de':
                 # call the adaptive DE implementation directly
                 alg_func = adaptive_differential_evolution.adaptive_differential_evolution
+                extra_kwargs = {}
             else:
                 alg_func = getattr(adapters, algo_name)
+                extra_kwargs = {'crossover': crossover} if algo_name == 'adaptive_mixed_de' else {}
 
             start = time.time()
             # call the algorithm; many implementations accept (problem, budget, seed,...)
-            alg_func(gym_problem, budget=budget, seed=seed, print_every=0)
+            alg_func(gym_problem, budget=budget, seed=seed, print_every=0, **extra_kwargs)
             dur = time.time() - start
             print(f"    seed={seed} done (took {dur:.1f}s)")
         except Exception as e:
@@ -143,6 +145,7 @@ def main():
     parser.add_argument('--algos', type=str, default=None, help='Comma-separated list of algos to run (default: all)')
     parser.add_argument('--budget-evals', type=int, default=None, help='Total environment evaluations target (overrides --budget by translating per-algo iterations)')
     parser.add_argument('--dry-run', action='store_true', help='Print planned presets/algos/budgets and exit without running')
+    parser.add_argument('--crossover', type=str, default='binomial', help='Crossover type for DE algorithms: binomial or exponential')
     args = parser.parse_args()
 
     # echo configuration for reproducibility
@@ -281,8 +284,10 @@ def main():
                 try:
                     if algo == 'adaptive_de':
                         alg_func = adaptive_differential_evolution.adaptive_differential_evolution
+                        extra_kwargs = {}
                     else:
                         alg_func = getattr(adapters, algo)
+                        extra_kwargs = {'crossover': args.crossover} if algo == 'adaptive_mixed_de' else {}
 
                     # map requested total environment-evaluations to per-algorithm
                     # iteration budgets so IOH 'evaluations' are comparable.
@@ -295,7 +300,7 @@ def main():
 
                     start = time.time()
                     print(f"    using budget for '{algo}': {effective_budget}")
-                    alg_func(gym_problem, budget=effective_budget, seed=seed, print_every=0)
+                    alg_func(gym_problem, budget=effective_budget, seed=seed, print_every=0, **extra_kwargs)
                     dur = time.time() - start
                     print(f"    seed={seed} done (took {dur:.1f}s)")
                 except Exception as e:

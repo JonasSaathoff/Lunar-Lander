@@ -13,12 +13,40 @@ from problem import GymProblem
 import os, csv
 
 
+def _binomial_crossover(target: np.ndarray, mutant: np.ndarray, CR: float) -> np.ndarray:
+    """Standard binomial crossover; ensures at least one mutant component."""
+    n = target.shape[0]
+    cross = np.random.rand(n) < CR
+    jrand = np.random.randint(n)
+    cross[jrand] = True
+    return np.where(cross, mutant, target)
+
+
+def _exponential_crossover(target: np.ndarray, mutant: np.ndarray, CR: float) -> np.ndarray:
+    """Exponential (block) crossover with circular wrap-around.
+    
+    Always copies at least one gene from the mutant starting at random index,
+    then continues copying contiguous genes while U(0,1) < CR.
+    """
+    n = target.shape[0]
+    trial = target.copy()
+    k = np.random.randint(n)
+    trial[k] = mutant[k]
+    L = 1
+    while (np.random.rand() < CR) and (L < n):
+        k = (k + 1) % n
+        trial[k] = mutant[k]
+        L += 1
+    return trial
+
+
 def adaptive_mixed_de(problem: GymProblem, budget: int = 1000, pop_size: int = 30,
                       F: float = 0.8, CR: float = 0.9, seed: int | None = None,
                       print_every: int = 0,
                       strategy_pool=None, strategy_probs=None,
                       adapt_strategy: bool = True, alpha: float = 0.05,
-                      algo_name: str = "adaptive_mixed_de", ioh_out: str | None = None):
+                      algo_name: str = "adaptive_mixed_de", ioh_out: str | None = None,
+                      crossover: str = "binomial"):
     """Run an adaptive mixed-strategy DE.
 
     Parameters:
@@ -26,6 +54,7 @@ def adaptive_mixed_de(problem: GymProblem, budget: int = 1000, pop_size: int = 3
     - strategy_probs: initial probabilities (if None -> uniform)
     - adapt_strategy: whether to adapt strategy probabilities online
     - alpha: EMA rate for updating strategy success estimates (0..1)
+    - crossover: 'binomial' (default) or 'exponential' crossover operator
 
     Returns: (best_x, best_f, f_hist, sigma_hist_placeholder, best_rewards)
     """
@@ -120,11 +149,11 @@ def adaptive_mixed_de(problem: GymProblem, budget: int = 1000, pop_size: int = 3
                 xa, xb, xc = pop[a], pop[b], pop[c]
                 mutant = xa + F_trial * (xb - xc)
 
-            # crossover (binomial)
-            cross = np.random.rand(n) < CR_trial
-            jrand = np.random.randint(n)
-            cross[jrand] = True
-            trial = np.where(cross, mutant, pop[i])
+            # crossover (selectable: binomial or exponential)
+            if crossover == "exponential":
+                trial = _exponential_crossover(pop[i], mutant, CR_trial)
+            else:
+                trial = _binomial_crossover(pop[i], mutant, CR_trial)
             trial = np.clip(trial, -1.0, 1.0)
 
             # evaluate
@@ -185,6 +214,7 @@ def main():
     p.add_argument('--pop-size', type=int, default=30)
     p.add_argument('--seed', type=int, default=None)
     p.add_argument('--print-every', type=int, default=0)
+    p.add_argument('--crossover', type=str, default='binomial', choices=['binomial', 'exponential'])
     args = p.parse_args()
 
     problem = GymProblem()
@@ -194,5 +224,10 @@ def main():
         pop_size=args.pop_size,
         seed=args.seed,
         print_every=args.print_every,
+        crossover=args.crossover,
     )
     print(f"Best fitness: {best_f}")
+
+
+if __name__ == '__main__':
+    main()
