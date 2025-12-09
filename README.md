@@ -65,6 +65,7 @@ Key flags:
 - `--reps`: replicate count; seeds start at 1000.
 - `--out-root`: IOH output folder (zipped automatically at end).
 - `--clean`: remove existing `out-root` before running.
+- `--crossover`: for `adaptive_mixed_de`, choose `binomial` (default) or `exponential` crossover.
 
 ## GymProblem API (quick reference)
 
