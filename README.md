@@ -94,11 +94,3 @@ x = problem.sample()
 f, rewards = problem(x)
 print("Fitness:", f)
 ```
-
-## Build a clean submission zip
-
-If you only need the essential files for grading/sharing:
-```bash
-python make_clean_submission.py --out submission_clean.zip
-```
-This collects the algorithms, adapters, runner scripts, and requirements into a single archive.
