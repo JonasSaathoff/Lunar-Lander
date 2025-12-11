@@ -1,5 +1,6 @@
 # Lunar Lander Optimization with IOH
 
+Project for Natural Computing @ Leiden Unversiteit in WS 2025/26. 
 Ready-to-run LunarLander optimization suite with multiple evolution strategies
 and Differential Evolution variants, instrumented for IOH logging.
 
