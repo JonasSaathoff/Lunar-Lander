@@ -1,8 +1,11 @@
 # Lunar Lander Optimization with IOH
 
-Project for Natural Computing @ Leiden Unversiteit in WS 2025/26. 
+Project for Natural Computing @ Leiden University in WS 2025/26. 
 Ready-to-run LunarLander optimization suite with multiple evolution strategies
 and Differential Evolution variants, instrumented for IOH logging.
+
+📄 Read the report [here](https://github.com/JonasSaathoff/Lunar-Lander/blob/main/report.pdf)
+
 
 ## Overview
 - Gym wrapper for LunarLander (`GymProblem`) supporting discrete/continuous control and wind/gravity presets.
